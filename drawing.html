@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Text Inside Path</title>
+</head>
+<body>
+    <!-- Container for the loaded SVG -->
+    <div id="mySVG"></div>
+
+    <script>
+        fetch('drawing.svg')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(svgContent => {
+                // Insert SVG content into the container
+                document.getElementById('mySVG').innerHTML = svgContent;
+
+                // Parking data
+                const parkingData = {
+                    status: "occupied",
+                    car: "1234"
+                };
+
+                // Find the specific path by ID
+                const svgContainer = document.getElementById('mySVG');
+                const targetPath = svgContainer.querySelector('#path7');
+                
+                if (targetPath) {
+                    // Create a text element within the SVG namespace
+                    const svgNS = "http://www.w3.org/2000/svg";
+                    const text = document.createElementNS(svgNS, "text");
+                    
+                    // Get the bounding box of the path to position the text
+                    const bbox = targetPath.getBBox();
+                    
+                    // Position the text at the center of the path
+                    text.setAttribute("x", bbox.x + bbox.width / 2);
+                    text.setAttribute("y", bbox.y + bbox.height / 2);
+                    text.setAttribute("fill", "black");
+                    text.setAttribute("font-size", "14");
+                    text.setAttribute("text-anchor", "middle");
+                    text.setAttribute("dominant-baseline", "middle"); // Vertically center text
+
+                    // Set the text content
+                    text.textContent = parkingData.status === "occupied" ? `Car: ${parkingData.car}` : "Vacant";
+
+                    // Add the text to the SVG (to the same parent as the path)
+                    targetPath.parentNode.appendChild(text);
+                } else {
+                    console.error("Path with ID 'path7' not found");
+                }
+            })
+            .catch(error => {
+                console.error('Error loading SVG:', error);
+                alert(`Failed to load SVG. Error: ${error.message}`);
+            });
+    </script>
+</body>
+</html>
